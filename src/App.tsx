@@ -1,7 +1,12 @@
-// src/App.jsx
-import React, { useEffect, useState } from "react";
+// src/App.tsx
+import { useEffect, useState } from "react";
 import { db } from "./main/utils/firebaseConfig";
-import { collection, getDocs } from "firebase/firestore";
+import {
+  collection,
+  getDocs,
+  DocumentData,
+  QueryDocumentSnapshot,
+} from "firebase/firestore";
 
 interface DataItems {
   born: string;
@@ -18,26 +23,26 @@ function App() {
     const fetchData = async () => {
       try {
         const querySnapshot = await getDocs(collection(db, "users"));
-
-        const dataArray = querySnapshot.docs.map((doc) => {
-          const docData = doc.data() as DataItems;
-          return { ...docData, id: doc.id };
-        });
-
-        setData(dataArray);
+        const userData: DataItems[] = querySnapshot.docs.map(
+          (doc: QueryDocumentSnapshot<DocumentData>) => {
+            const docData = doc.data() as DataItems;
+            return { ...docData, id: doc.id };
+          }
+        );
+        setData(userData);
       } catch (error) {
         console.log("GET USER ERROR: ", error);
       }
     };
-    // fetchData();
+    fetchData(); // Ensure fetchData is used
   }, []);
 
   return (
     <div>
       <h1>Firebase Data</h1>
       <ul>
-        {data.map((item, index) => (
-          <li key={index}>{JSON.stringify(item)}</li>
+        {data.map((item) => (
+          <li key={item.id}>{JSON.stringify(item)}</li>
         ))}
       </ul>
     </div>
