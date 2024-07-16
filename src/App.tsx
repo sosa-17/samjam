@@ -1,35 +1,47 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+// src/App.jsx
+import React, { useEffect, useState } from "react";
+import { db } from "./main/utils/firebaseConfig";
+import { collection, getDocs } from "firebase/firestore";
 
-function App() {
-  const [count, setCount] = useState(0)
-
-  return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+interface DataItems {
+  born: string;
+  first: string;
+  last: string;
+  middle: string;
+  id: string;
 }
 
-export default App
+function App() {
+  const [data, setData] = useState<DataItems[]>([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const querySnapshot = await getDocs(collection(db, "users"));
+
+        const dataArray = querySnapshot.docs.map((doc) => {
+          const docData = doc.data() as DataItems;
+          return { ...docData, id: doc.id };
+        });
+
+        setData(dataArray);
+      } catch (error) {
+        console.log("GET USER ERROR: ", error);
+      }
+    };
+    // fetchData();
+  }, []);
+
+  return (
+    <div>
+      <h1>Firebase Data</h1>
+      <ul>
+        {data.map((item, index) => (
+          <li key={index}>{JSON.stringify(item)}</li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+export default App;
