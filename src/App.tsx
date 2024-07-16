@@ -18,6 +18,7 @@ interface DataItems {
 
 function App() {
   const [data, setData] = useState<DataItems[]>([]);
+  const enabledGetUsers = false;
 
   useEffect(() => {
     const fetchData = async () => {
@@ -34,7 +35,9 @@ function App() {
         console.log("GET USER ERROR: ", error);
       }
     };
-    fetchData(); // Ensure fetchData is used
+    if (enabledGetUsers) {
+      fetchData(); // Ensure fetchData is used
+    }
   }, []);
 
   return (
